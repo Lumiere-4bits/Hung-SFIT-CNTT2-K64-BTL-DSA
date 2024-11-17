@@ -5,3 +5,5 @@ p4,product4,producer4,40
 p5,product5,producer5,50
 p7,product7,producer8,10
 p8,product8,producer8,11
+21,21,21,21
+21,21,21,21

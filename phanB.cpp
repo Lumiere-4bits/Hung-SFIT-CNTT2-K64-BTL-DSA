@@ -1,4 +1,4 @@
-#include<bits/stdc++.h>
+#include<iostream>
 #include<string>
 #include<fstream>
 
@@ -59,11 +59,33 @@ public:
                 break;
             }
         }
-        if(index == -1) return;
-        for(int i = index; i < size - 1; i++){
+        if(index != -1){
+            for(int i = index; i < size - 1; i++){
             data[i] = data[i + 1];
+            }
+            --size;
+        }else{
+            cout << "Not found" << endl;
         }
-        --size;
+    }
+    void insert(int index, const T& value){
+        if(index < 0 || index > size){
+            cout << "Out of range" << endl;
+            return;
+        }
+        if(size == cap){
+            cap *= 2;
+            T* new_data = new T[cap];
+            for(int i = 0; i < size; i++){
+                new_data[i] = data[i];
+            }
+            delete[] data;
+        }
+        for(int i = size; i > index; i--){
+            data[i] = data[i - 1];
+        }
+        data[index] = value;
+        ++size;
     }
     void clear(){
         size = 0;
@@ -92,12 +114,12 @@ private:
     string product_id;
     string product_name;
     string producer;
-    int num;
+    int number;
 public:
-    Products(): product_id(""), product_name(""), producer(""), num(0){}
-    Products(string id, string name, string pro, int n): product_id(id), product_name(name), producer(pro), num(n){}
+    Products(): product_id(""), product_name(""), producer(""), number(0){}
+    Products(string id, string name, string pro, int n): product_id(id), product_name(name), producer(pro), number(n){}
     void display(){
-        cout << product_id << "\t|" << product_name << "\t|" << producer << "\t|" << num << endl;   
+        cout << product_id << "\t|" << product_name << "\t|" << producer << "\t|" << number << endl;   
     }
     string get_product_id(){
         return product_id;
@@ -108,37 +130,39 @@ public:
     string get_producer(){
         return producer;
     }
-    int get_num(){
-        return num;
+    int get_nums(){
+        return number;
+    }
+    void set_nums(int num){
+        this->number = num;
     }
     bool operator==(const Products& p) const{
         return product_id == p.product_id;
     }
     friend ostream& operator<<(ostream& os, const Products& p){
-        os << p.product_id << "\t|" << p.product_name << "\t|" << p.producer << "\t|" << p.num << endl;
+        os << p.product_id << "\t|" << p.product_name << "\t|" << p.producer << "\t|" << p.number << endl;
         return os;
     }
     friend istream& operator>>(istream& is, Products& p){
         cout << "Enter Product-Id: ";
         is >> p.product_id;
         cout << "Enter Product-Name: ";
-        is.ignore();
-        getline(is, p.product_name);
+        is >> p.product_name;
         cout << "Enter Producer: ";
-        getline(is, p.producer);
+        is >> p.producer;
         cout << "Enter Number: ";
-        is >> p.num;
+        is >> p.number;
         return is;
     }
     friend ofstream& operator<<(ofstream& os, const Products& p){
-        os << p.product_id << "," << p.product_name << "," << p.producer << "," << p.num << endl;
+        os << p.product_id << "," << p.product_name << "," << p.producer << "," << p.number << endl;
         return os;
     }
     friend ifstream& operator>>(ifstream& is, Products& p){
         getline(is, p.product_id, ',');
         getline(is, p.product_name, ',');
         getline(is, p.producer, ',');
-        is >> p.num;
+        is >> p.number;
         is.ignore();
         return is;
     }
@@ -174,7 +198,7 @@ public:
         return price;
     }
     friend ostream& operator<<(ostream& os, const Bills& b){
-        os << b.bill_id << "\t|\t" << b.product_id << "\t|\t" << b.bill_type << "\t|\t" << b.num << "\t|\t" << b.date << "\t|\t" << b.price;
+        os << b.bill_id << "\t|" << b.product_id << "\t|" << b.bill_type << "\t|" << b.num << "\t|" << b.date << "\t|" << b.price;
         return os;
     }
     friend istream& operator>>(istream& is, Bills& b){
@@ -280,10 +304,9 @@ public:
     void display_products(){
         if(new_products.getSize() == 0){
             cout << "No products" << endl;
-        }
-        cout << "Products: " << endl;
-        for(int i = 0; i < new_products.getSize(); i++){
-            new_products[i].display();
+        }else{
+            cout << "Products:" << endl;
+            new_products.display();
         }
     }
     void input_bills(){
@@ -304,14 +327,14 @@ public:
     void display_bills(){
         if(new_bills.getSize() == 0){
             cout << "No bills" << endl;
+        }else{
+            cout << "Bills:" << endl;
+            new_bills.display();
         }
-        cout << "Bills: " << endl;
-        for(int i = 0; i < new_bills.getSize(); i++){
-            new_bills[i].display();
-        }
+        
     }
-    void display_product(){
-        ifstream file("products.txt");
+    void display_product(const string& filename){
+        ifstream file(filename);
         if(!file){
             cout << "Cannot open file" << endl;
             return;
@@ -326,36 +349,51 @@ public:
             cout << "No new products" << endl;
         }else{
             cout << "New products: " << endl;
-            for(int i = 0; i < new_products.getSize(); i++){
-                new_products[i].display();
-            }
+            new_products.display();
         }
     }
     void statisticals(){
         cout << "Statisticals:" << endl;
         for(int i = 0 ; i < products.getSize(); i++){
-            int num = 0;
+            int number_exist = 0;
             for(int j = 0; j < products.getSize(); j++){
                 if(products[i].get_product_id() == products[j].get_product_id()){
-                    num += products[j].get_num();
+                    number_exist += products[j].get_nums();
                 }
             }
             for(int j = 0; j < new_products.getSize(); j++){
                 if(new_products[j].get_product_id() == products[i].get_product_id()){
-                    num += new_products[j].get_num();
+                    number_exist += new_products[j].get_nums();
                 }
             }
             for(int j = 0; j < bills.getSize(); j++){
                 if(bills[j].get_product_id() == products[i].get_product_id()){
-                    num -= bills[j].get_num();
+                    number_exist -= bills[j].get_num();
                 }
             }
-            cout << "Product-Id: " << products[i].get_product_id() << "\t| Product-Name: " << products[i].get_product_name() << "\t| Number: " << num << endl;
+            cout << "Product-Id: " << products[i].get_product_id() << "\t| Product-Name: " << products[i].get_product_name() << "\t| Number: " << number_exist << endl;
         }
         if(new_products.getSize() == 0){
             cout << "No new products" << endl;
         }
-
+        for(int i = 0; i < new_products.getSize(); i++){
+            bool found = false;
+            for(int j = 0; j < products.getSize(); j++){
+                if(new_products[i].get_product_id() == products[j].get_product_id()){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                int number_exist = new_products[i].get_nums();
+                for(int j = 0; j < bills.getSize(); j++){
+                    if(bills[j].get_product_id() == new_products[i].get_product_id()){
+                        number_exist -= bills[j].get_num();
+                    }
+                }
+                cout << "Product-Id: " << new_products[i].get_product_id() << "\t| Product-Name: " << new_products[i].get_product_name() << "\t| Number: " << number_exist << endl;
+            }
+        }
     }
 };
 
@@ -379,26 +417,30 @@ int main(){
         switch(choice){
             case 1:
                 store.input_products();
+                store.write_data("output1.txt", true);
                 break;
             case 2:
                 store.display_products();
                 break;
             case 3:
                 store.input_bills();
+                store.write_data("output2.txt", false);
                 break;
             case 4:
                 store.display_bills();
                 break;
             case 5:
-                store.display_products();
+                store.display_product("products.txt");
                 break;
             case 6:
                 store.statisticals();
                 break;
             case 7:
+                cout << "Exit" << endl;
                 break;
             default:
                 cout << "Invalid choice" << endl;
+                break;
         }        
     }while(choice != 7);
 }
